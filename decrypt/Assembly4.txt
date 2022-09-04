@@ -1,0 +1,21 @@
+CLR             // reset r4 to 64
+LDR r7 r3       // r3 = 128, r7 = tap pattern
+ADD r3 r1       // r3++, to load next tap
+LDR r0 r4       // r4 = 64, r0 = start state
+AOL r0 r7       // SHIFT LFSR state
+ADD r4 r1	// r4++
+LDR r2 r4	// r2 = msg
+CMP r4 r5	// r4 == 73?
+BNE 0010		// 010 = 4, loop preamable
+CMP r2 r0	// == LFSR state??
+BNE 0011		// 011 = line 0, loop to find match tap
+CLR		// reset
+LDR r0 r4       // r4 = 64, r0 = start state
+LDR r6 r4       // r6 = msg
+XOR r6 r0
+AOL r0 r7       // SHIFT LFSR state
+STR r6 r2       // store decrypted msg to 0-61
+ADD r4 r1	// r4++, Read Addr
+ADD r2 r1       // r2++, Write Addr
+CMP r2 r5       // cmp with 74 for now
+BNE 0100         // 100 = line 14, loop to decrypt

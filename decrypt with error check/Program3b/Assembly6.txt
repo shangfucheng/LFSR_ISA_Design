@@ -1,0 +1,39 @@
+CLR             // reset r4 to 64
+LDR r7 r3       // r3 = 128, r7 = tap pattern
+ADD r3 r1       // r3++, to load next tap
+LDR r0 r4       // r4 = 64, r0 = start state
+AOL r0 r7       // SHIFT LFSR state
+ADD r4 r1		// r4++
+LDR r2 r4		// r2 = msg
+CMP r4 r5		// r4 == 73?
+BNE 0010		// 010 = 4, loop preamable
+CMP r2 r0		// mem[73] == LFSR state[9]??
+BNE 0011		// 011 = line 0, loop to find match tap
+CLR			// reset
+LDR r0 r4       // r4 = 64, r0 = start state
+LDR r3 r4       // r3 = msg
+LDR r6 r4	// r6 = msg, for parity check
+XOR r3 r0
+AOL r0 r7       // SHIFT LFSR state
+ADD r4 r1		// r4++
+CMP r3 r2		// compare with space
+BNE 1010		// 1010 = line 21, skip all spaces
+BNE 0100		// 100 = line 13, loop if space
+STR r3 r2		// store first non space char into mem[0]
+XOR r6 r6		// check for pairty error
+BNE 0111		// 111 = 25
+STR r6 r2		// r6 = 'h80
+ADD r2 r1		// r2++ Waddr
+LDR r3 r4		// r3 = msg for normal decryption
+LDR r6 r4		// r6 = msg for parity check
+XOR r6 r6 	// parity check 
+BNE 1000		// 1000 = line 32, continue normal operation
+STR r6 r2		// store error flag
+BNE 1001		// 1001 = line 34, continue next loop
+XOR r3 r0		// msg ^ LFSR
+STR r3 r2       // store decrypted msg to 0-61
+AOL r0 r7		// LFSR Shift
+ADD r4 r1		// r4++, Read Addr
+ADD r2 r1       // r2++, Write Addr
+CMP r2 r5       // cmp with 74 for now
+BNE 1011        // 1011 = line 26, loop to decrypt

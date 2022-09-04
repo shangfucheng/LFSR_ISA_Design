@@ -1,0 +1,22 @@
+LDR r4 r0		// r4 = pream length
+ADD r0 r1		// r0 = 62, r1 = 1
+LDR r5 r0		// r5 = tap pattr
+ADD r0 r1		// r0 = 63
+LDR r6 r0		// r6 = start state
+ADD r0 r1		// r0 = 64
+STR r6 r0		// store start state into mem[64]
+ADD r0 r1		// r0 = 65
+AOL r6 r5		// line 8
+STR r6 r0		// start -> mem[r0]
+ADD r0 r1		// r0++
+ADD r7 r1 	// r7++ pream counter
+CMP r7 r4		// pream counter == pream length?
+BNE 0000		// line 14
+LDR r4 r2		// r4 = mem[0]
+AOL r6 r5
+XOR r4 r6		// LFSR state ^ message
+STR r4 r0		 
+ADD r0 r1
+ADD r2 r1		// increment read address
+CMP r3 r0
+BNE 0001		// line 14
